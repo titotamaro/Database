@@ -1,0 +1,161 @@
+source : https://github.com/Lecturer-Jcds/MySQL-Exercise
+# Menggunakan database sakila dan mengeluarkan output sesuai soal
+
+1. Tampilkan daftar 10 film komedi dengan durasi tersingkat. Urutkan data berdasarkan film dengan durasi terpendek. Kolom yang diwajibkan tampil adalah title, category dan length.
+Syntax : mysql> select film.title, category.name, film.length from film join film_category on film.film_id = film_category.film_id join category on film_category.category_id = category.category_id where category.name = "Comedy" order by film.length, film.title asc limit 10;
+Output:
++------------------+--------+--------+
+| title            | name   | length |
++------------------+--------+--------+
+| DOWNHILL ENOUGH  | Comedy |     47 |
+| HEAVEN FREEDOM   | Comedy |     48 |
+| PARADISE SABRINA | Comedy |     48 |
+| HURRICANE AFFAIR | Comedy |     49 |
+| LION UNCUT       | Comedy |     50 |
+| ZORRO ARK        | Comedy |     50 |
+| CLOSER BANG      | Comedy |     58 |
+| AIRPLANE SIERRA  | Comedy |     62 |
+| LONELY ELEPHANT  | Comedy |     67 |
+| DOOM DANCING     | Comedy |     68 |
++------------------+--------+--------+
+10 rows in set (0.02 sec)
+
+2. Tampilkan daftar lengkap kategori film beserta jumlah film tiap kategori & rata-rata harga sewa DVD film tiap kategori. Urutkan data dari kategori dengan jumlah film terbanyak. Kolom yang diwajibkan ada minimal adalah kategori, jumlah film dan rata-rata harga sewa.
+Syntax : mysql> select category.name as "kategori", count(*) as "jumlahMovie", avg(film.rental_rate) as "rataHargaSewa" from film join film_category on film.film_id=film_category.film_id join category on film_category.category_id=category.category_id group by category.name order by count(*) desc;
+Output :
++-------------+-------------+---------------+
+| kategori    | jumlahMovie | rataHargaSewa |
++-------------+-------------+---------------+
+| Sports      |          74 |      3.125135 |
+| Foreign     |          73 |      3.099589 |
+| Family      |          69 |      2.758116 |
+| Documentary |          68 |      2.666471 |
+| Animation   |          66 |      2.808182 |
+| Action      |          64 |      2.646250 |
+| New         |          63 |      3.116984 |
+| Drama       |          62 |      3.022258 |
+| Games       |          61 |      3.252295 |
+| Sci-Fi      |          61 |      3.219508 |
+| Children    |          60 |      2.890000 |
+| Comedy      |          58 |      3.162414 |
+| Classics    |          57 |      2.744386 |
+| Travel      |          57 |      3.235614 |
+| Horror      |          56 |      3.025714 |
+| Music       |          51 |      2.950784 |
++-------------+-------------+---------------+
+16 rows in set (0.00 sec)
+
+3. Motion Picture Association of America memiliki sistem rating untuk film berdasarkan konten & target penontonnya dengan klasifikasi sebagai berikut:
+	G : General Audiences
+	PG : Parental Guidance Suggested
+	PG-13 : Parental Guidances for Children Under 13
+	R : Restricted
+	NC-17 : No Children Under 17 Admitted
+Tampilkan daftar lengkap rating film beserta keterangan arti rating & jumlah film tiap rating. Kolom yang diwajibkan ada minimal adalah rating, keterangan rating dan jumlah film.
+Syntax : mysql> select rating, case rating when "G" then "General Audiences" when "PG" then "Parental Guidances Suggested" when "PG-13" then "Parental Guidances for Children Under 13" when "R" then "Restricted" when "NC-17" then "No Children Under 17 Admitted" end as "keterangan", count(*) from film group by rating;
+Output : 
++--------+------------------------------------------+----------+
+| rating | keterangan                               | count(*) |
++--------+------------------------------------------+----------+
+| PG     | Parental Guidances Suggested             |      194 |
+| G      | General Audiences                        |      178 |
+| NC-17  | No Children Under 17 Admitted            |      210 |
+| PG-13  | Parental Guidances for Children Under 13 |      223 |
+| R      | Restricted                               |      195 |
++--------+------------------------------------------+----------+
+5 rows in set (0.10 sec)
+
+4. Tampilkan daftar 10 aktor/aktris yang paling banyak membintangi film. Kolom yang ditampilkan minimal: id aktor, nama depan, nama belakang dan jumlah film yang dibintangi kemudian urutkan dari aktor/aktris yang membintangi film terbanyak.
+Syntax : mysql> select actor.actor_id, actor.first_name, actor.last_name, count(*) as "jumlah_Movie" from film join film_actor on film.film_id=film_actor.film_id join actor on film_actor.actor_id=actor.actor_id group by actor.actor_id order by count(*) desc, actor.actor_id desc limit 10;
+Output : 
++----------+------------+-------------+--------------+
+| actor_id | first_name | last_name   | jumlah_Movie |
++----------+------------+-------------+--------------+
+|      107 | GINA       | DEGENERES   |           42 |
+|      102 | WALTER     | TORN        |           41 |
+|      198 | MARY       | KEITEL      |           40 |
+|      181 | MATTHEW    | CARREY      |           39 |
+|       23 | SANDRA     | KILMER      |           37 |
+|       81 | SCARLETT   | DAMON       |           36 |
+|      158 | VIVIEN     | BASINGER    |           35 |
+|      144 | ANGELA     | WITHERSPOON |           35 |
+|      106 | GROUCHO    | DUNST       |           35 |
+|       60 | HENRY      | BERRY       |           35 |
++----------+------------+-------------+--------------+
+10 rows in set (0.12 sec)
+
+5. Dari soal sebelumnya diketahui Gina Degeneres merupakan aktris yang paling banyak membintangi film, dengan total 42 judul film. Kategori film apakah yang paling banyak dibintanginya? Untuk mengetahuinya, tampilkan daftar kategori film beserta jumlah film yang pernah dibintangi oleh Gina Degeneres. Kolom yang diwajibkan ada yaitu kategori film dan jumlah film yang dibintangi.
+Syntax : mysql> select category.name, count(*) as "jumlah_Movie" from film join film_category on film.film_id=film_category.film_id join category on film_category.category_id=category.category_id join film_actor on film.film_id=film_actor.film_id join actor on film_actor.actor_id=actor.actor_id where actor.first_name="GINA" and actor.last_name="DEGENERES" group by category.name;
+Output : 
++-------------+--------------+
+| name        | jumlah_Movie |
++-------------+--------------+
+| Documentary |            3 |
+| Foreign     |            2 |
+| Music       |            4 |
+| New         |            1 |
+| Sci-Fi      |            7 |
+| Action      |            3 |
+| Drama       |            2 |
+| Animation   |            4 |
+| Horror      |            1 |
+| Family      |            4 |
+| Comedy      |            3 |
+| Children    |            2 |
+| Classics    |            2 |
+| Sports      |            2 |
+| Games       |            1 |
+| Travel      |            1 |
++-------------+--------------+
+16 rows in set (0.41 sec)
+
+6. Dari soal sebelumnya diketahui Gina Degeneres paling banyak membintangi film bergenre science-fiction, dengan total 7 judul film. Tampilkan daftar judul film sci-fi yang pernah dibintangi oleh Gina Degeneres. Kolom yang diwajibkan ada yaitu judul film dan kategorinya.
+Syntax : mysql> select film.title, category.name from film join film_category on film.film_id=film_category.film_id join category on film_category.category_id=category.category_id join film_actor on film.film_id=film_actor.film_id join actor on film_actor.actor_id=actor.actor_id where actor.first_name="GINA" and actor.last_name="DEGENERES" and category.name="Sci-Fi";
+Output : 
++---------------------+--------+
+| title               | name   |
++---------------------+--------+
+| CHARIOTS CONSPIRACY | Sci-Fi |
+| COLDBLOODED DARLING | Sci-Fi |
+| FRISCO FORREST      | Sci-Fi |
+| GOODFELLAS SALUTE   | Sci-Fi |
+| LICENSE WEEKEND     | Sci-Fi |
+| OPEN AFRICAN        | Sci-Fi |
+| SPIRITED CASUALTIES | Sci-Fi |
++---------------------+--------+
+7 rows in set (0.00 sec)
+
+7. Tampilkan daftar 10 aktor/aktris yang paling banyak membintangi film horror. Kolom yang ditampilkan minimal: id aktor, nama depan, nama belakang dan jumlah film horror yang dibintangi kemudian urutkan dari aktor/aktris yang membintangi film horror terbanyak.
+Syntax : mysql> select actor.actor_id, actor.first_name, actor.last_name, count(*) as "jumlah_Movie" from film join film_category on film.film_id=film_category.film_id join category on film_category.category_id=category.category_id join film_actor on film.film_id=film_actor.film_id join actor on film_actor.actor_id=actor.actor_id where category.name="Horror" group by actor.actor_id order by count(*) desc limit 10;
+Output : 
++----------+------------+-----------+--------------+
+| actor_id | first_name | last_name | jumlah_Movie |
++----------+------------+-----------+--------------+
+|       27 | JULIA      | MCQUEEN   |            7 |
+|       42 | TOM        | MIRANDA   |            6 |
+|       60 | HENRY      | BERRY     |            5 |
+|       14 | VIVIEN     | BERGEN    |            5 |
+|       26 | RIP        | CRAWFORD  |            4 |
+|       94 | KENNETH    | TORN      |            4 |
+|      179 | ED         | GUINESS   |            4 |
+|      157 | GRETA      | MALDEN    |            4 |
+|       40 | JOHNNY     | CAGE      |            4 |
+|       75 | BURT       | POSEY     |            4 |
++----------+------------+-----------+--------------+
+10 rows in set (0.01 sec)
+
+8. Dari soal sebelumnya diketahui Julia McQueen merupakan aktris yang paling banyak membintangi film horror, dengan total 7 judul film. Tampilkan daftar judul film horror yang pernah dibintangi oleh Julia McQueen. Kolom yang diwajibkan ada yaitu judul film dan kategorinya.
+Syntax : mysql> select film.title, category.name from film join film_category on film.film_id=film_category.film_id join category on film_category.category_id=category.category_id join film_actor on film.film_id=film_actor.film_id join actor on film_actor.actor_id=actor.actor_id where actor.first_name="Julia" and actor.last_name="Mcqueen" and category.name="Horror";
+Output : 
++--------------------+--------+
+| title              | name   |
++--------------------+--------+
+| ARABIA DOGMA       | Horror |
+| FREDDY STORM       | Horror |
+| HIGH ENCINO        | Horror |
+| MONTEREY LABYRINTH | Horror |
+| SPIRIT FLINTSTONES | Horror |
+| STRANGERS GRAFFITI | Horror |
+| TRAIN BUNCH        | Horror |
++--------------------+--------+
+7 rows in set (0.00 sec)
